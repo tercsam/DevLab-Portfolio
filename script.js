@@ -23,3 +23,21 @@ toggleBtn.addEventListener('click', () => {
   aboutCard.classList.toggle('collapsed');
   toggleBtn.textContent = aboutCard.classList.contains('collapsed') ? '⬇️' : '⬆️';
 });
+
+// --- Thème clair / sombre ---
+const themeToggle = document.getElementById('themeToggle');
+const body = document.body;
+
+// Charger le thème sauvegardé
+if (localStorage.getItem('theme') === 'dark') {
+  body.classList.add('dark-mode');
+  themeToggle.textContent = '☀️';
+}
+
+// Changer le thème au clic
+themeToggle.addEventListener('click', () => {
+  body.classList.toggle('dark-mode');
+  const isDark = body.classList.contains('dark-mode');
+  themeToggle.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+});
