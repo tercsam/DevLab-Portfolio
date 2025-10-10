@@ -7,16 +7,16 @@
   
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  
+
+  <!-- Feuille de style -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
- <header>
-  <h1>👨‍💻🧪 DevLab</h1>
-  <button id="themeToggle" class="theme-toggle">🌙</button>
-</header>
-
+  <header>
+    <h1>👨‍💻🧪 DevLab</h1>
+    <button id="themeToggle" class="theme-toggle">🌙</button> 
+  </header>
 
   <main>
     <!-- Section À propos -->
@@ -57,7 +57,6 @@
         <div class="project-card">
           <h3>🎾 Pong</h3>
           <p>Un jeu vidéo Pong avec une IA intelligente.</p>
-          <!-- 🔗 Lien Google Drive direct -->
           <a href="https://drive.google.com/uc?export=download&id=14dK1DACQRe2r-tWFrh7fXOvZaV1zMsL6" target="_blank" class="btn">Télécharger (.exe)</a>
         </div>
         <div class="project-card">
@@ -80,6 +79,13 @@
     <p>© 2025 Clément Mascret – Développé avec ❤️</p>
   </footer>
 
+  <!-- 🎵 Musique d'ambiance -->
+  <audio id="bgMusic" src="Ambiance.mp3" loop></audio>
+
+  <!-- Bouton de contrôle musique -->
+  <button id="musicToggle" class="music-toggle" title="Activer/désactiver la musique">🎧</button>
+
+  <!-- Script JS -->
   <script src="script.js"></script>
 </body>
 </html>
