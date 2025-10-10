@@ -171,31 +171,3 @@ body.dark-mode .theme-toggle:hover {
   color: #1e1e2f;
 }
 
-/* --- Bouton musique --- */
-.music-toggle {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  background: rgba(30,30,47,0.9);
-  color: #ffd369;
-  border: 2px solid #ffd369;
-  font-size: 1.3rem;
-  padding: 0.6rem 0.8rem;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
-  z-index: 1001;
-}
-.music-toggle:hover {
-  background: #ffd369;
-  color: #1e1e2f;
-  transform: scale(1.1);
-}
-.music-toggle.playing {
-  animation: pulse 1.5s infinite ease-in-out;
-}
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 8px #ffd369; }
-  50% { box-shadow: 0 0 20px #ffd369; }
-}
