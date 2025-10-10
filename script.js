@@ -37,36 +37,60 @@ themeToggle.addEventListener('click', () => {
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
 });
 
-// Musique
+// --- Musique d'ambiance ---
 const bgMusic = document.getElementById('bgMusic');
 const musicToggle = document.getElementById('musicToggle');
 bgMusic.volume = 0.2;
 
-// Lecture auto si activée précédemment
-if (localStorage.getItem('music') === 'on') {
-  bgMusic.play().catch(() => {});
-  musicToggle.classList.add('playing');
-  musicToggle.textContent = '🔇';
-}
-
-// Clic sur le bouton musique
-musicToggle.addEventListener('click', () => {
-  if (bgMusic.paused) {
-    bgMusic.play();
+// Fonction d'update visuelle
+function updateMusicButton(isPlaying) {
+  if (isPlaying) {
     musicToggle.classList.add('playing');
     musicToggle.textContent = '🔇';
-    localStorage.setItem('music', 'on');
   } else {
-    bgMusic.pause();
     musicToggle.classList.remove('playing');
     musicToggle.textContent = '🎧';
-    localStorage.setItem('music', 'off');
+  }
+}
+
+// Lecture avec gestion d'erreur
+async function tryPlayMusic() {
+  try {
+    await bgMusic.play();
+    updateMusicButton(true);
+    localStorage.setItem('music', 'on');
+  } catch (err) {
+    console.warn('Lecture bloquée par le navigateur : interaction requise.');
+    updateMusicButton(false);
+  }
+}
+
+// Pause musique
+function stopMusic() {
+  bgMusic.pause();
+  updateMusicButton(false);
+  localStorage.setItem('music', 'off');
+}
+
+// Charger la préférence utilisateur
+if (localStorage.getItem('music') === 'on') {
+  tryPlayMusic();
+} else {
+  updateMusicButton(false);
+}
+
+// Clic sur le bouton 🎧 / 🔇
+musicToggle.addEventListener('click', () => {
+  if (bgMusic.paused) {
+    tryPlayMusic();
+  } else {
+    stopMusic();
   }
 });
 
-// S’assure que la musique démarre après 1er clic utilisateur
+// Certains navigateurs nécessitent un premier clic sur le document
 document.body.addEventListener('click', () => {
   if (localStorage.getItem('music') === 'on' && bgMusic.paused) {
-    bgMusic.play().catch(() => {});
+    tryPlayMusic();
   }
 }, { once: true });
