@@ -22,18 +22,6 @@ header {
   box-shadow:0 4px 12px rgba(0,0,0,0.2);
 }
 header h1 { font-weight:600; font-size:1.8rem; }
-nav a {
-  color:white;
-  margin-left:1.5rem;
-  text-decoration:none;
-  padding:0.3rem 0.6rem;
-  border-radius:6px;
-  transition:all 0.3s ease;
-}
-nav a:hover {
-  background:#ffd369;
-  color:#1e1e2f;
-}
 
 /* Sections */
 .section { padding:4rem 2rem; max-width:1000px; margin:auto; text-align:center; }
@@ -54,41 +42,29 @@ nav a:hover {
 
 /* À propos */
 .about-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(10px);
   padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-  gap: 1rem;
+  transition: max-height 0.6s ease, padding 0.4s ease;
+  overflow: hidden;
   max-width: 900px;
   margin: 2rem auto 0;
-  text-align: center;
-  transition: max-height 0.6s ease, padding 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
-  overflow: hidden;
-  position: relative;
 }
-
 .about-card.collapsed {
   max-height: 120px;
   padding: 1rem 2rem;
 }
-
 .about-header {
   display: flex;
   align-items: center;
-  justify-content: center; /* centre emoji + titre */
+  justify-content: center;
   gap: 1rem;
-  width: 100%;
   position: relative;
 }
-
 .about-emoji { font-size: 4rem; }
-.about-title { font-size: 1.5rem; font-weight: 600; text-align: center; }
-
+.about-title { font-size: 1.5rem; font-weight: 600; }
 .toggle-btn {
   position: absolute;
   right: 1rem;
@@ -99,16 +75,8 @@ nav a:hover {
   transition: transform 0.3s ease;
 }
 .about-card.collapsed .toggle-btn { transform: rotate(180deg); }
-
-.about-text {
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-.about-card.collapsed .about-text {
-  opacity: 0;
-  transform: translateY(-10px);
-  pointer-events: none;
-}
-
+.about-text { transition: opacity 0.4s ease, transform 0.4s ease; }
+.about-card.collapsed .about-text { opacity: 0; transform: translateY(-10px); pointer-events: none; }
 .about-text p { margin-bottom:1rem; font-size:1.1rem; }
 .about-text .highlight { font-weight:600; color:#ffd369; font-size:1.2rem; }
 
@@ -134,7 +102,6 @@ nav a:hover {
   border-radius:12px;
   text-decoration:none;
   font-weight:600;
-  box-shadow:0 4px 12px rgba(0,0,0,0.15);
   transition:all 0.3s ease;
 }
 .btn:hover { background:#ffd369; color:#1e1e2f; transform:translateY(-2px); }
@@ -155,12 +122,7 @@ footer {
 
 /* Responsive */
 @media (max-width:768px) {
-  .about-card { flex-direction:column; text-align:center; }
-  .about-emoji { margin-bottom:1rem; }
-  .about-title { text-align:center; }
-  .toggle-btn { position: static; }
   .projects-grid { grid-template-columns:1fr; }
-  nav { flex-direction:column; gap:0.5rem; }
 }
 
 /* --- Bouton de thème --- */
@@ -174,7 +136,6 @@ footer {
   cursor: pointer;
   transition: all 0.3s ease;
 }
-
 .theme-toggle:hover {
   background: #ffd369;
   color: #1e1e2f;
@@ -185,33 +146,22 @@ body.dark-mode {
   background: linear-gradient(135deg, #1e1e2f, #2a2a3d);
   color: #f5f5f5;
 }
-
-body.dark-mode header {
+body.dark-mode header, body.dark-mode footer {
   background: rgba(255, 255, 255, 0.1);
   color: #ffd369;
 }
-
-body.dark-mode footer {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffd369;
-}
-
-body.dark-mode .about-card,
-body.dark-mode .project-card {
+body.dark-mode .about-card, body.dark-mode .project-card {
   background: rgba(40, 40, 60, 0.9);
   color: #f5f5f5;
 }
-
 body.dark-mode .btn {
   background: #ffd369;
   color: #1e1e2f;
 }
-
 body.dark-mode .btn:hover {
   background: #f5f5f5;
   color: #1e1e2f;
 }
-
 body.dark-mode .theme-toggle {
   border-color: #f5f5f5;
   color: #f5f5f5;
@@ -219,4 +169,33 @@ body.dark-mode .theme-toggle {
 body.dark-mode .theme-toggle:hover {
   background: #f5f5f5;
   color: #1e1e2f;
+}
+
+/* --- Bouton musique --- */
+.music-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: rgba(30,30,47,0.9);
+  color: #ffd369;
+  border: 2px solid #ffd369;
+  font-size: 1.3rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+  z-index: 1001;
+}
+.music-toggle:hover {
+  background: #ffd369;
+  color: #1e1e2f;
+  transform: scale(1.1);
+}
+.music-toggle.playing {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 8px #ffd369; }
+  50% { box-shadow: 0 0 20px #ffd369; }
 }
