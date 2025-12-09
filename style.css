@@ -171,3 +171,42 @@ body.dark-mode .theme-toggle:hover {
   color: #1e1e2f;
 }
 
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.55);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+}
+
+.modal-content {
+  width: 500px;
+  max-width: 90vw;
+  padding: 2rem;
+  background: white;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+.modal input {
+  width: 90%;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 1.1rem;
+}
+
+.close {
+  cursor: pointer;
+  float: right;
+  font-size: 2rem;
+  font-weight: bold;
+}
