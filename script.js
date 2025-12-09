@@ -37,3 +37,38 @@ themeToggle.addEventListener('click', () => {
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
 });
 
+// ---- Search Engine ----
+const modal = document.getElementById("searchModal");
+const openBtn = document.getElementById("openSearch");
+const closeBtn = document.getElementById("closeModal");
+
+openBtn.addEventListener("click", () => {
+  modal.style.display = "flex";
+});
+
+closeBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+document.getElementById("runSearch").addEventListener("click", async () => {
+  const query = document.getElementById("queryInput").value;
+  const zone = document.getElementById("resultsZone");
+
+  zone.innerHTML = "<p>⏳ Recherche...</p>";
+
+  const res = await fetch("https://search-api.vercel.app/search?q=" + encodeURIComponent(query));
+
+  const data = await res.json();
+
+  if (!data.length) {
+    zone.innerHTML = "<p>Aucun résultat trouvé ❌</p>";
+    return;
+  }
+
+  zone.innerHTML = data.map(result => `
+    <div class="project-card">
+      <h3>${result.title}</h3>
+      <a href="${result.url}" target="_blank" class="btn">Ouvrir</a>
+    </div>
+  `).join("");
+});
