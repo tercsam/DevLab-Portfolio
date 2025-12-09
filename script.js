@@ -72,3 +72,24 @@ document.getElementById("runSearch").addEventListener("click", async () => {
     </div>
   `).join("");
 });
+
+const EXA_KEY = "21888cd4-da96-4a6a-aa24-1707e30a8ad3";
+
+async function runSearch(query) {
+  const response = await fetch("https://api.exa.ai/search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": EXA_KEY
+    },
+    body: JSON.stringify({
+      query: query,
+      type: "keyword",
+      numResults: 5
+    })
+  });
+
+  const data = await response.json();
+  return data.results;
+}
+
