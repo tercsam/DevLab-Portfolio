@@ -1,9 +1,9 @@
-// Bouton contact
+// ---- Bouton contact ----
 document.getElementById('contactBtn').addEventListener('click', () => {
-  alert('Merci pour ton intérêt ! 😊 Envoie-moi un mail à : mascret.clement@gmail.com');
+  window.location.href = "mailto:mascret.clement@gmail.com?subject=Contact Portfolio";
 });
 
-// Fade-in scroll
+// ---- Fade-in scroll ----
 const faders = document.querySelectorAll('.fade');
 const appearOptions = { threshold: 0.2 };
 const appearOnScroll = new IntersectionObserver((entries, observer) => {
@@ -15,7 +15,7 @@ const appearOnScroll = new IntersectionObserver((entries, observer) => {
 }, appearOptions);
 faders.forEach(fader => appearOnScroll.observe(fader));
 
-// Toggle carte À propos
+// ---- Toggle carte À propos ----
 const toggleBtn = document.getElementById('toggleAbout');
 const aboutCard = document.getElementById('aboutCard');
 toggleBtn.addEventListener('click', () => {
@@ -23,7 +23,7 @@ toggleBtn.addEventListener('click', () => {
   toggleBtn.textContent = aboutCard.classList.contains('collapsed') ? '⬇️' : '⬆️';
 });
 
-// Thème clair / sombre
+// ---- Thème clair / sombre ----
 const themeToggle = document.getElementById('themeToggle');
 const body = document.body;
 if (localStorage.getItem('theme') === 'dark') {
@@ -37,59 +37,61 @@ themeToggle.addEventListener('click', () => {
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
 });
 
-// ---- Search Engine ----
+// ---- Search Engine avec API Exa ----
+const EXA_KEY = "21888cd4-da96-4a6a-aa24-1707e30a8ad3";
+
 const modal = document.getElementById("searchModal");
 const openBtn = document.getElementById("openSearch");
 const closeBtn = document.getElementById("closeModal");
+const runBtn = document.getElementById("runSearch");
+const queryInput = document.getElementById("queryInput");
+const resultsZone = document.getElementById("resultsZone");
 
-openBtn.addEventListener("click", () => {
-  modal.style.display = "flex";
-});
+// Ouvrir / fermer modale
+openBtn.addEventListener("click", () => modal.style.display = "flex");
+closeBtn.addEventListener("click", () => modal.style.display = "none");
 
-closeBtn.addEventListener("click", () => {
-  modal.style.display = "none";
-});
-
-document.getElementById("runSearch").addEventListener("click", async () => {
-  const query = document.getElementById("queryInput").value;
-  const zone = document.getElementById("resultsZone");
-
-  zone.innerHTML = "<p>⏳ Recherche...</p>";
-
-  const res = await fetch("https://search-api.vercel.app/search?q=" + encodeURIComponent(query));
-
-  const data = await res.json();
-
-  if (!data.length) {
-    zone.innerHTML = "<p>Aucun résultat trouvé ❌</p>";
-    return;
-  }
-
-  zone.innerHTML = data.map(result => `
-    <div class="project-card">
-      <h3>${result.title}</h3>
-      <a href="${result.url}" target="_blank" class="btn">Ouvrir</a>
-    </div>
-  `).join("");
-});
-
-const EXA_KEY = "21888cd4-da96-4a6a-aa24-1707e30a8ad3";
-
+// Fonction pour rechercher avec Exa API
 async function runSearch(query) {
-  const response = await fetch("https://api.exa.ai/search", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": EXA_KEY
-    },
-    body: JSON.stringify({
-      query: query,
-      type: "keyword",
-      numResults: 5
-    })
-  });
+  resultsZone.innerHTML = "<p>⏳ Recherche...</p>";
+  
+  try {
+    const response = await fetch("https://api.exa.ai/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": EXA_KEY
+      },
+      body: JSON.stringify({
+        query: query,
+        type: "keyword",
+        numResults: 5
+      })
+    });
 
-  const data = await response.json();
-  return data.results;
+    const data = await response.json();
+
+    if (!data.results || data.results.length === 0) {
+      resultsZone.innerHTML = "<p>Aucun résultat trouvé ❌</p>";
+      return;
+    }
+
+    resultsZone.innerHTML = data.results.map(result => `
+      <div class="project-card">
+        <h3>${result.title}</h3>
+        <p>${result.snippet || ""}</p>
+        <a href="${result.url}" target="_blank" class="btn">Ouvrir</a>
+      </div>
+    `).join("");
+  } catch (error) {
+    console.error(error);
+    resultsZone.innerHTML = "<p>Erreur lors de la recherche ❌</p>";
+  }
 }
 
+// Bouton rechercher
+runBtn.addEventListener("click", () => {
+  const query = queryInput.value.trim();
+  if (!query) return;
+  runSearch(query);
+});
