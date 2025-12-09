@@ -54,7 +54,6 @@ closeBtn.addEventListener("click", () => modal.style.display = "none");
 // Fonction pour rechercher avec Exa API
 async function runSearch(query) {
   resultsZone.innerHTML = "<p>⏳ Recherche...</p>";
-  
   try {
     const response = await fetch("https://api.exa.ai/search", {
       method: "POST",
@@ -64,12 +63,14 @@ async function runSearch(query) {
       },
       body: JSON.stringify({
         query: query,
-        type: "keyword",
-        numResults: 5
+        type: "auto",
+        numResults: 5,
+        text: true
       })
     });
 
     const data = await response.json();
+    console.log("[EXA] raw response:", data); // pour debug
 
     if (!data.results || data.results.length === 0) {
       resultsZone.innerHTML = "<p>Aucun résultat trouvé ❌</p>";
@@ -78,27 +79,16 @@ async function runSearch(query) {
 
     resultsZone.innerHTML = data.results.map(result => `
       <div class="project-card">
-        <h3>${result.title}</h3>
-        <p>${result.snippet || ""}</p>
+        <h3>${result.title || "Sans titre"}</h3>
+        ${result.text
+          ? `<pre style="text-align:left; white-space: pre-wrap;">${result.text.slice(0, 500)}…</pre>`
+          : ""}
         <a href="${result.url}" target="_blank" class="btn">Ouvrir</a>
       </div>
     `).join("");
   } catch (error) {
-    console.error(error);
+    console.error("Erreur pendant la recherche Exa:", error);
     resultsZone.innerHTML = "<p>Erreur lors de la recherche ❌</p>";
   }
 }
-
-// Bouton rechercher
-runBtn.addEventListener("click", () => {
-  const query = queryInput.value.trim();
-  if (!query) return;
-  runSearch(query);
-});
-
-window.addEventListener("click", e => {
-  if (e.target === modal) {
-    modal.style.display = "none";
-  }
-});
 
