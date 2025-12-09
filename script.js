@@ -95,3 +95,10 @@ runBtn.addEventListener("click", () => {
   if (!query) return;
   runSearch(query);
 });
+
+window.addEventListener("click", e => {
+  if (e.target === modal) {
+    modal.style.display = "none";
+  }
+});
+
