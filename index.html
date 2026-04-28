@@ -3,96 +3,1780 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Portfolio Clément Mascret</title>
-  
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
-  <!-- Feuille de style -->
-  <link rel="stylesheet" href="style.css" />
+  <title>Clément Mascret — DevLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 </head>
 <body>
 
-  <header>
-    <h1>👨‍💻🧪 DevLab</h1>
-    <button id="openSearch" class="theme-toggle">🔍 Search Engine</button>
-    <button id="themeToggle" class="theme-toggle">🌙</button> 
-  </header>
+<!-- ===================== STYLES ===================== -->
+<style>
+:root {
+  --gold: #ffd369;
+  --gold-dim: rgba(255,211,105,0.15);
+  --gold-glow: rgba(255,211,105,0.4);
+  --blue: #4488ff;
+  --pink: #ff6688;
+  --green: #44ffaa;
+  --bg: #06080f;
+  --bg2: #0c0f1a;
+  --bg3: #111520;
+  --surface: rgba(255,255,255,0.04);
+  --surface2: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #ffffff;
+  --text2: rgba(255,255,255,0.55);
+  --text3: rgba(255,255,255,0.3);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Space Grotesk', sans-serif;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-  <main>
-    <!-- Section À propos -->
-    <section id="about" class="section fade">
-      <div class="about-card collapsed" id="aboutCard">
-        <div class="about-header">
-          <div class="about-emoji">💻</div>
-          <h2 class="about-title">À propos</h2>
-          <button id="toggleAbout" class="toggle-btn">⬇️</button>
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ---- CUSTOM CURSOR ---- */
+#cursor {
+  position: fixed; top:0; left:0;
+  width: 24px; height: 24px;
+  border: 1.5px solid var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%,-50%);
+  transition: width .25s var(--ease), height .25s var(--ease), border-color .25s, background .25s, opacity .3s;
+  mix-blend-mode: difference;
+}
+#cursor.hover { width:48px; height:48px; background: var(--gold-dim); }
+#cursor.clicking { width:16px; height:16px; }
+#cursor-trail {
+  position: fixed; top:0; left:0;
+  width:6px; height:6px;
+  background: var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%,-50%);
+  transition: transform .08s linear, opacity .3s;
+  opacity: 0.7;
+}
+
+/* ---- HERO 3D SECTION ---- */
+#hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(68,136,255,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 50% at 80% 80%, rgba(255,102,136,0.06) 0%, transparent 50%),
+              var(--bg);
+}
+
+#hero-canvas {
+  position: absolute; inset:0;
+  width: 100%; height: 100%;
+  display: block;
+}
+
+#hero-content {
+  position: absolute; inset:0;
+  display: flex; flex-direction:column;
+  align-items: center; justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hero-badge {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid rgba(255,211,105,0.3);
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  background: rgba(255,211,105,0.05);
+}
+
+.hero-name {
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.hero-name .line1 { display:block; color: #fff; }
+.hero-name .line2 {
+  display:block;
+  background: linear-gradient(90deg, var(--gold) 0%, #ff8c42 50%, var(--pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-tagline {
+  margin-top: 1.5rem;
+  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+  color: var(--text2);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.hero-tagline span {
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.hero-actions {
+  display: flex; gap: 1rem;
+  margin-top: 2.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: auto;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: #06080f;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.85rem 2rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex; align-items:center; gap:0.5rem;
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(255,211,105,0.35);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  padding: 0.85rem 2rem;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex; align-items:center; gap:0.5rem;
+  transition: all .2s var(--ease);
+}
+.btn-ghost:hover {
+  border-color: rgba(255,255,255,0.3);
+  background: var(--surface2);
+  transform: translateY(-2px);
+}
+
+/* scroll indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction:column; align-items:center; gap:0.5rem;
+  opacity: 0;
+  z-index: 10;
+}
+.scroll-indicator.visible { opacity:1; }
+.scroll-indicator span {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.scroll-line {
+  width: 1px; height:40px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scrollAnim 2s ease-in-out infinite;
+}
+@keyframes scrollAnim {
+  0%,100%{transform:scaleY(0) translateY(-20px);opacity:0}
+  50%{transform:scaleY(1) translateY(0);opacity:1}
+}
+
+/* nav dots */
+.nav-dots {
+  position: absolute;
+  right: 2rem; top:50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction:column; gap: 10px;
+  z-index: 20;
+}
+.nav-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  cursor: pointer;
+  transition: all .3s var(--ease);
+  background: transparent;
+}
+.nav-dot.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 12px var(--gold-glow);
+}
+
+/* ---- HEADER NAV ---- */
+#topnav {
+  position: fixed; top:0; left:0; right:0;
+  z-index: 1000;
+  padding: 1.2rem 2.5rem;
+  display: flex; align-items:center; justify-content:space-between;
+  background: transparent;
+  transition: background .4s, backdrop-filter .4s, border-bottom .4s;
+}
+#topnav.scrolled {
+  background: rgba(6,8,15,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-decoration: none;
+}
+.nav-logo .bracket { color: var(--text3); }
+
+.nav-links {
+  display: flex; align-items:center; gap: 2rem;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text2);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: color .2s;
+  position: relative;
+}
+.nav-links a::after {
+  content:'';
+  position:absolute; bottom:-4px; left:0;
+  width:0; height:1px;
+  background: var(--gold);
+  transition: width .3s var(--ease);
+}
+.nav-links a:hover { color: var(--text); }
+.nav-links a:hover::after { width:100%; }
+
+.nav-right { display:flex; align-items:center; gap:1rem; }
+
+.btn-theme {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex; align-items:center; justify-content:center;
+  transition: all .2s;
+}
+.btn-theme:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
+
+/* ---- SECTION LAYOUT ---- */
+.section {
+  padding: 6rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+  display: flex; align-items:center; gap:0.75rem;
+}
+.section-label::before {
+  content:'';
+  width:20px; height:1px;
+  background: var(--gold);
+}
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+.section-desc {
+  font-size: 1rem;
+  color: var(--text2);
+  line-height: 1.7;
+  max-width: 560px;
+}
+
+/* ---- ABOUT SECTION ---- */
+#about { padding: 6rem 2rem; }
+.about-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.about-visual {
+  position: relative;
+}
+.about-avatar {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 400px;
+  border-radius: var(--radius-lg);
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  display: flex; align-items:center; justify-content:center;
+  font-size: 8rem;
+  position: relative;
+  overflow: hidden;
+}
+.about-avatar::before {
+  content:'';
+  position:absolute; inset:-1px;
+  background: linear-gradient(135deg, rgba(255,211,105,0.2), transparent 60%, rgba(68,136,255,0.15));
+  border-radius: var(--radius-lg);
+  pointer-events:none;
+}
+.avatar-glow {
+  position: absolute;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(255,211,105,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+  top:50%; left:50%;
+  transform: translate(-50%,-50%);
+  animation: avatarPulse 3s ease-in-out infinite;
+}
+@keyframes avatarPulse {
+  0%,100%{transform:translate(-50%,-50%) scale(1); opacity:0.6}
+  50%{transform:translate(-50%,-50%) scale(1.15); opacity:1}
+}
+
+.about-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  transition: border-color .3s, transform .3s;
+}
+.stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gold);
+  font-family: var(--mono);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--text3);
+  margin-top: 0.3rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.about-content p {
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 1.25rem;
+  font-size: 1rem;
+}
+.about-content strong { color: var(--text); font-weight: 600; }
+.about-quote {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--gold);
+  border-left: 2px solid var(--gold);
+  padding: 0.75rem 1.2rem;
+  margin: 1.5rem 0;
+  background: var(--gold-dim);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* Skills */
+.skills-grid {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+.skill-tag {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  background: var(--surface);
+  transition: all .2s;
+  letter-spacing: 0.05em;
+}
+.skill-tag:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+.skill-tag.featured { border-color: rgba(255,211,105,0.4); color: var(--gold); background: var(--gold-dim); }
+
+/* ---- PROJECTS SECTION ---- */
+#projects { padding: 6rem 2rem; background: linear-gradient(to bottom, transparent, var(--bg2), transparent); }
+.projects-inner { max-width: 1100px; margin:0 auto; }
+
+.projects-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 3rem;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.project-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .3s var(--ease), transform .4s var(--ease), box-shadow .4s var(--ease);
+  group: true;
+}
+.project-card::before {
+  content:'';
+  position:absolute; inset:0;
+  background: linear-gradient(135deg, var(--accent-color,rgba(255,211,105,0.08)) 0%, transparent 60%);
+  opacity:0;
+  transition: opacity .4s;
+  pointer-events:none;
+}
+.project-card:hover {
+  border-color: var(--accent-border, rgba(255,211,105,0.3));
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px var(--accent-shadow, rgba(255,211,105,0.1));
+}
+.project-card:hover::before { opacity:1; }
+
+.project-card.accent-blue {
+  --accent-color: rgba(68,136,255,0.08);
+  --accent-border: rgba(68,136,255,0.3);
+  --accent-shadow: rgba(68,136,255,0.1);
+}
+.project-card.accent-pink {
+  --accent-color: rgba(255,102,136,0.08);
+  --accent-border: rgba(255,102,136,0.3);
+  --accent-shadow: rgba(255,102,136,0.1);
+}
+.project-card.accent-green {
+  --accent-color: rgba(68,255,170,0.08);
+  --accent-border: rgba(68,255,170,0.3);
+  --accent-shadow: rgba(68,255,170,0.1);
+}
+
+.project-emoji {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+  filter: drop-shadow(0 0 20px var(--accent-shadow, rgba(255,211,105,0.3)));
+}
+
+.project-meta {
+  display: flex; align-items:center; gap:0.5rem;
+  margin-bottom: 0.75rem;
+}
+.project-type {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.project-dot { width:3px; height:3px; background:var(--text3); border-radius:50%; }
+
+.project-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+.project-desc {
+  font-size: 0.9rem;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.project-tags {
+  display: flex; flex-wrap:wrap; gap:0.4rem;
+  margin-bottom: 1.5rem;
+}
+.project-tag {
+  font-family: var(--mono);
+  font-size: 0.67rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--text3);
+  letter-spacing: 0.08em;
+}
+
+.project-links {
+  display: flex; gap:0.75rem;
+  position: relative; z-index:1;
+}
+
+.btn-project {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  border-radius: 7px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex; align-items:center; gap:0.4rem;
+  transition: all .2s var(--ease);
+  letter-spacing: 0.04em;
+}
+.btn-project.primary {
+  background: var(--gold);
+  color: #06080f;
+}
+.btn-project.primary:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(255,211,105,0.3); }
+.btn-project.secondary {
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+.btn-project.secondary:hover { border-color:var(--border2); color:var(--text); }
+
+/* featured project - Mistigri */
+.project-card.featured {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+.mistigri-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  background: #0a0a12;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.mistigri-browser-chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.browser-dots { display:flex; gap:5px; }
+.bdot { width:10px; height:10px; border-radius:50%; }
+.bdot-red { background:#ff5f57; }
+.bdot-yellow { background:#febc2e; }
+.bdot-green { background:#28c840; }
+.browser-url {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text3);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.2rem 0.7rem;
+  flex:1;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.mistigri-iframe-container {
+  position: relative;
+  flex:1;
+  min-height: 320px;
+  overflow: hidden;
+}
+.mistigri-iframe {
+  width: 200%;
+  height: 200%;
+  border: none;
+  display: block;
+  pointer-events: none;
+  transform: scale(0.5);
+  transform-origin: top left;
+}
+.mistigri-overlay-link {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 1rem;
+  background: linear-gradient(to top, rgba(6,8,15,0.7) 0%, transparent 50%);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity .3s;
+}
+.mistigri-preview-wrap:hover .mistigri-overlay-link { opacity: 1; }
+.overlay-hint {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--gold);
+  background: rgba(6,8,15,0.8);
+  border: 1px solid rgba(255,211,105,0.3);
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  letter-spacing: 0.08em;
+}
+.mistigri-info {
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.mistigri-preview-wrap:hover .mistigri-iframe { pointer-events: auto; }
+
+/* accent-gold */
+.project-card.accent-gold {
+  --accent-color: rgba(255,211,105,0.08);
+  --accent-border: rgba(255,211,105,0.35);
+  --accent-shadow: rgba(255,211,105,0.12);
+}
+
+/* mini cards with ball canvas */
+.project-card.mini-card {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+.mini-ball-canvas {
+  position: absolute;
+  top: 0; right: 0;
+  width: 120px; height: 120px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  transition: opacity .4s;
+}
+.project-card.mini-card:hover .mini-ball-canvas { opacity: 1; }
+.mini-card-content {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+}
+
+/* ---- CONTACT SECTION ---- */
+#contact { padding: 6rem 2rem; }
+.contact-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.contact-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  transition: all .3s;
+}
+.contact-card:hover { border-color: var(--border2); transform: translateY(-3px); }
+
+.contact-icon {
+  width: 44px; height: 44px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(255,211,105,0.2);
+  border-radius: var(--radius);
+  display: flex; align-items:center; justify-content:center;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+.contact-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 0.3rem;
+}
+.contact-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  transition: color .2s;
+}
+.contact-value:hover { color: var(--gold); }
+
+.contact-form { display:flex; flex-direction:column; gap:1rem; }
+.form-group { display:flex; flex-direction:column; gap:0.4rem; }
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text2);
+  letter-spacing: 0.03em;
+}
+.form-input, .form-textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  transition: border-color .2s, background .2s;
+  outline: none;
+  resize: none;
+}
+.form-input:focus, .form-textarea:focus {
+  border-color: rgba(255,211,105,0.4);
+  background: var(--surface2);
+}
+.form-input::placeholder, .form-textarea::placeholder { color: var(--text3); }
+.form-textarea { height: 130px; }
+
+.btn-submit {
+  background: var(--gold);
+  color: #06080f;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 1rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all .2s var(--ease);
+  display:flex; align-items:center; justify-content:center; gap:0.5rem;
+}
+.btn-submit:hover { transform:translateY(-2px); box-shadow:0 12px 40px rgba(255,211,105,0.35); }
+
+/* ---- SEARCH MODAL ---- */
+#search-modal {
+  position: fixed; inset:0;
+  z-index: 10000;
+  display: flex; align-items:center; justify-content:center;
+  background: rgba(6,8,15,0.85);
+  backdrop-filter: blur(20px);
+  opacity: 0; pointer-events:none;
+  transition: opacity .3s;
+}
+#search-modal.open { opacity:1; pointer-events:auto; }
+
+.search-box {
+  width: 640px;
+  max-width: 90vw;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transform: translateY(-20px) scale(0.98);
+  transition: transform .3s var(--ease);
+}
+#search-modal.open .search-box { transform: translateY(0) scale(1); }
+
+.search-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items:center; gap:0.75rem;
+}
+.search-icon { font-size: 1rem; color: var(--text3); }
+.search-input {
+  flex:1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 1rem;
+  outline: none;
+}
+.search-input::placeholder { color: var(--text3); }
+.search-close {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text3);
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display:flex; align-items:center; justify-content:center;
+  transition: all .2s;
+}
+.search-close:hover { border-color:var(--border2); color:var(--text); }
+
+.search-results {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 1rem;
+}
+.search-results::-webkit-scrollbar { width:4px; }
+.search-results::-webkit-scrollbar-track { background:transparent; }
+.search-results::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+
+.search-result-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.75rem;
+  background: var(--surface);
+  transition: all .2s;
+}
+.search-result-card:hover { border-color: var(--border2); background: var(--surface2); }
+.search-result-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.35rem; }
+.search-result-url { font-family: var(--mono); font-size: 0.7rem; color: var(--gold); margin-bottom: 0.5rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.search-result-snippet { font-size: 0.82rem; color: var(--text2); line-height: 1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.search-result-link { display:inline-block; margin-top:0.75rem; font-size:0.78rem; color:var(--gold); text-decoration:none; font-weight:600; }
+.search-result-link:hover { text-decoration:underline; }
+
+.search-status {
+  text-align:center; padding:2rem;
+  color: var(--text3);
+  font-size: 0.9rem;
+  font-family: var(--mono);
+}
+
+.search-footer {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid var(--border);
+  display:flex; align-items:center; gap:1.5rem;
+}
+.search-hint {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text3);
+  letter-spacing: 0.05em;
+  display:flex; align-items:center; gap:0.4rem;
+}
+kbd {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text2);
+}
+
+/* ---- FOOTER ---- */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 2.5rem;
+  display:flex; align-items:center; justify-content:space-between;
+  max-width: 1100px; margin: 0 auto;
+  flex-wrap: wrap; gap: 1rem;
+}
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text3);
+  letter-spacing: 0.05em;
+}
+.footer-links {
+  display:flex; gap:1.5rem; list-style:none;
+}
+.footer-links a {
+  font-size: 0.8rem;
+  color: var(--text3);
+  text-decoration: none;
+  transition: color .2s;
+}
+.footer-links a:hover { color: var(--text); }
+
+/* ---- LIGHT MODE ---- */
+body.light {
+  --bg: #f8f9fc;
+  --bg2: #f0f1f5;
+  --bg3: #e8e9ef;
+  --surface: rgba(0,0,0,0.04);
+  --surface2: rgba(0,0,0,0.07);
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --text: #0f0f12;
+  --text2: rgba(0,0,0,0.55);
+  --text3: rgba(0,0,0,0.35);
+  --gold-dim: rgba(180,130,0,0.1);
+  --gold-glow: rgba(180,130,0,0.3);
+}
+body.light #hero {
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(68,136,255,0.06) 0%, transparent 60%), var(--bg);
+}
+body.light .hero-name .line1 { color: #0f0f12; }
+body.light .search-box { background: #fff; }
+
+/* ---- ANIMATIONS ---- */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-up-delay-1 { transition-delay: 0.1s; }
+.fade-up-delay-2 { transition-delay: 0.2s; }
+.fade-up-delay-3 { transition-delay: 0.3s; }
+.fade-up-delay-4 { transition-delay: 0.4s; }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 768px) {
+  .about-inner, .contact-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .projects-grid { grid-template-columns: 1fr; }
+  .project-card.featured { grid-column: span 1; grid-template-columns: 1fr; }
+  .nav-links { display:none; }
+  .hero-actions { flex-direction:column; align-items:center; }
+  footer { justify-content:center; text-align:center; }
+  .nav-dots { display:none; }
+}
+</style>
+
+<!-- ===================== HTML ===================== -->
+
+<!-- Cursor -->
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+
+<!-- Top Nav -->
+<nav id="topnav">
+  <a href="#" class="nav-logo"><span class="bracket">[</span>CM<span class="bracket">]</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">À propos</a></li>
+    <li><a href="#projects">Projets</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn-ghost" id="openSearch" style="font-size:0.8rem;padding:0.55rem 1rem;">🔍 Rechercher</button>
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</nav>
+
+<!-- ========== HERO ========== -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+
+  <!-- Nav dots -->
+  <div class="nav-dots">
+    <div class="nav-dot active" data-z="0"></div>
+    <div class="nav-dot" data-z="1"></div>
+    <div class="nav-dot" data-z="2"></div>
+  </div>
+
+  <div id="hero-content">
+    <div class="hero-badge">Full Stack Developer · Creative Coder</div>
+    <h1 class="hero-name">
+      <span class="line1">Clément</span>
+      <span class="line2">Mascret</span>
+    </h1>
+    <p class="hero-tagline">
+      Je construis des <span>expériences web</span> qui marient code & design
+    </p>
+    <div class="hero-actions">
+      <a href="#projects" class="btn-primary">Voir mes projets ↓</a>
+      <a href="#contact" class="btn-ghost">Me contacter</a>
+    </div>
+  </div>
+
+  <div class="scroll-indicator" id="scrollIndicator">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ========== ABOUT ========== -->
+<section id="about">
+  <div class="about-inner">
+    <div class="about-visual fade-up">
+      <div class="about-avatar">
+        <div class="avatar-glow"></div>
+        💻
+      </div>
+      <div class="about-stats">
+        <div class="stat-card">
+          <div class="stat-number">3+</div>
+          <div class="stat-label">Années d'XP</div>
         </div>
-        <div class="about-text">
-          <p>
-            Salut ! Je m'appelle <strong>Clément Mascret</strong>, développeur <strong>Full Stack</strong> passionné par la création d’applications performantes et intuitives.
-          </p>
-          <p>
-            J’aime concevoir des solutions modernes du front-end au back-end, avec une attention particulière à l’ergonomie et à la sécurité.  
-            En parallèle, je m’intéresse beaucoup aux <strong>jeux vidéo</strong> et à la <strong>cybersécurité</strong>, deux domaines qui nourrissent ma curiosité et ma créativité.
-          </p>
-          <p class="highlight">“Toujours curieux, toujours en train de coder !”</p>
+        <div class="stat-card">
+          <div class="stat-number">15+</div>
+          <div class="stat-label">Projets livrés</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">∞</div>
+          <div class="stat-label">Curiosité</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">01</div>
+          <div class="stat-label">DevLab</div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Section Projets -->
-    <section id="projects" class="section fade">
-      <h2>Projets téléchargeables</h2>
-      <div class="projects-grid">
-        <div class="project-card">
-          <h3>🚀 L'observatoir des mondes</h3>
-          <p>Une expérience interactive qui transforme vos dessins en planètes 3D — conçue pour la Nuit des Musées</p>
-           <a href="https://tercsam.github.io/La-nuit-au-Musee/" target="_blank" class="btn">Visiter</a>
+    <div class="about-content">
+      <div class="section-label fade-up">À propos</div>
+      <h2 class="section-title fade-up fade-up-delay-1">
+        Toujours curieux,<br>toujours en train de coder
+      </h2>
+
+      <div class="fade-up fade-up-delay-2">
+        <p>
+          Salut ! Je m'appelle <strong>Clément Mascret</strong>, développeur <strong>Full Stack</strong> passionné par la création d'applications performantes et intuitives.
+        </p>
+        <p>
+          J'aime concevoir des solutions modernes du front-end au back-end, avec une attention particulière à l'ergonomie et à la sécurité. En parallèle, je m'intéresse aux <strong>jeux vidéo</strong> et à la <strong>cybersécurité</strong>.
+        </p>
+        <div class="about-quote">"Code, créativité, curiosité — dans cet ordre (ou pas)."</div>
+      </div>
+
+      <div class="skills-grid fade-up fade-up-delay-3">
+        <span class="skill-tag featured">React</span>
+        <span class="skill-tag featured">Node.js</span>
+        <span class="skill-tag featured">Three.js</span>
+        <span class="skill-tag featured">Python</span>
+        <span class="skill-tag">TypeScript</span>
+        <span class="skill-tag">PostgreSQL</span>
+        <span class="skill-tag">Docker</span>
+        <span class="skill-tag">GSAP</span>
+        <span class="skill-tag">WebGL</span>
+        <span class="skill-tag">Figma</span>
+        <span class="skill-tag">Git</span>
+        <span class="skill-tag">API REST</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PROJECTS ========== -->
+<section id="projects">
+  <div class="projects-inner">
+    <div class="projects-header">
+      <div>
+        <div class="section-label fade-up">Projets</div>
+        <h2 class="section-title fade-up fade-up-delay-1">Ce que j'ai construit</h2>
+      </div>
+      <p class="section-desc fade-up fade-up-delay-2" style="max-width:340px;">
+        Des expériences interactives, des jeux, des outils — chaque projet est une nouvelle aventure.
+      </p>
+    </div>
+
+    <div class="projects-grid">
+
+      <!-- ===== FEATURED: MISTIGRI ===== -->
+      <div class="project-card featured mistigri-featured fade-up">
+        <div class="mistigri-preview-wrap">
+          <div class="mistigri-browser-chrome">
+            <div class="browser-dots">
+              <span class="bdot bdot-red"></span>
+              <span class="bdot bdot-yellow"></span>
+              <span class="bdot bdot-green"></span>
+            </div>
+            <div class="browser-url">mistigri-xi.vercel.app</div>
+          </div>
+          <div class="mistigri-iframe-container">
+            <iframe
+              src="https://mistigri-xi.vercel.app/"
+              title="Mistigri - DVD Shelf 3D"
+              scrolling="no"
+              loading="lazy"
+              class="mistigri-iframe"
+            ></iframe>
+            <a href="https://mistigri-xi.vercel.app/" target="_blank" class="mistigri-overlay-link" aria-label="Ouvrir Mistigri">
+              <span class="overlay-hint">Cliquer pour explorer ↗</span>
+            </a>
+          </div>
         </div>
-        <div class="project-card">
-          <h3>🦖 WordZilla</h3>
-          <p>Un jeu de mots addictif qui mêle logique et caractère.</p>
-          <a href="https://tercsam.github.io/WordZilla/" target="_blank" class="btn">Visiter</a>
-        </div>
-        <div class="project-card">
-          <h3>🎾 Pong</h3>
-          <p>Un jeu vidéo Pong avec une IA intelligente.</p>
-          <a href="https://drive.google.com/uc?export=download&id=14dK1DACQRe2r-tWFrh7fXOvZaV1zMsL6" target="_blank" class="btn">Télécharger (.exe)</a>
-        </div>
-        <div class="project-card">
-          <h3>💬 Assistant vocal IA</h3>
-          <p>Assistant vocal via API ElevenLabs.</p>
-          <a href="https://drive.google.com/uc?export=download&id=1waQXPc6ktA4EuZlzhj-YqToVrM1ZjkWt" target="_blank" class="btn">Télécharger (.app)</a>
+        <div class="mistigri-info">
+          <div class="project-meta">
+            <span class="project-type">Expérience 3D</span>
+            <span class="project-dot"></span>
+            <span class="project-type">Featured</span>
+          </div>
+          <h3 class="project-title">Mistigri</h3>
+          <p class="project-desc">
+            Une étagère DVD en 3D interactive — navigation physique, ambiance cinématographique. Chaque DVD s'extrait, s'incline, réagit à la souris. Une expérience de Creative Coding poussée à l'extrême.
+          </p>
+          <div class="project-tags">
+            <span class="project-tag">Three.js</span>
+            <span class="project-tag">WebGL</span>
+            <span class="project-tag">React</span>
+            <span class="project-tag">Physique 3D</span>
+            <span class="project-tag">GSAP</span>
+          </div>
+          <div class="project-links">
+            <a href="https://mistigri-xi.vercel.app/" target="_blank" class="btn-project primary">Visiter le projet ↗</a>
+          </div>
         </div>
       </div>
-      <div id="searchModal" class="modal">
-  <div class="modal-content">
-    <span id="closeModal" class="close">&times;</span>
-    <h2>🔎 Recherche</h2>
 
-    <input id="queryInput" placeholder="Tape ta recherche ici…" />
-    <button id="runSearch" class="btn">Rechercher</button>
+      <!-- ===== SMALL CARDS (4) avec boules interactives ===== -->
 
-    <div id="resultsZone"></div>
+      <!-- Nuit des Musées -->
+      <div class="project-card mini-card accent-gold fade-up fade-up-delay-1" data-ball-color="255,211,105">
+        <canvas class="mini-ball-canvas"></canvas>
+        <div class="mini-card-content">
+          <div class="project-meta">
+            <span class="project-type">Web Expérience</span>
+            <span class="project-dot"></span>
+            <span class="project-type">2024</span>
+          </div>
+          <h3 class="project-title">🌍 L'Observatoire des Mondes</h3>
+          <p class="project-desc">Tes dessins deviennent des planètes 3D — conçu pour la Nuit des Musées.</p>
+          <div class="project-tags">
+            <span class="project-tag">Three.js</span>
+            <span class="project-tag">Canvas</span>
+            <span class="project-tag">Procédural</span>
+          </div>
+          <div class="project-links">
+            <a href="https://tercsam.github.io/La-nuit-au-Musee/" target="_blank" class="btn-project primary">Visiter ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- WordZilla -->
+      <div class="project-card mini-card accent-green fade-up fade-up-delay-2" data-ball-color="68,255,170">
+        <canvas class="mini-ball-canvas"></canvas>
+        <div class="mini-card-content">
+          <div class="project-meta">
+            <span class="project-type">Jeu Web</span>
+            <span class="project-dot"></span>
+            <span class="project-type">2024</span>
+          </div>
+          <h3 class="project-title">🦖 WordZilla</h3>
+          <p class="project-desc">Un jeu de mots addictif qui mêle logique et caractère. Animé, vivant, addictif.</p>
+          <div class="project-tags">
+            <span class="project-tag">JavaScript</span>
+            <span class="project-tag">Game Design</span>
+          </div>
+          <div class="project-links">
+            <a href="https://tercsam.github.io/WordZilla/" target="_blank" class="btn-project primary">Jouer ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pong IA -->
+      <div class="project-card mini-card accent-blue fade-up fade-up-delay-3" data-ball-color="68,136,255">
+        <canvas class="mini-ball-canvas"></canvas>
+        <div class="mini-card-content">
+          <div class="project-meta">
+            <span class="project-type">Desktop Game</span>
+            <span class="project-dot"></span>
+            <span class="project-type">2024</span>
+          </div>
+          <h3 class="project-title">🎾 Pong IA</h3>
+          <p class="project-desc">Pong revisité avec une IA intelligente et des effets visuels modernes.</p>
+          <div class="project-tags">
+            <span class="project-tag">Python</span>
+            <span class="project-tag">Pygame</span>
+          </div>
+          <div class="project-links">
+            <a href="https://drive.google.com/uc?export=download&id=14dK1DACQRe2r-tWFrh7fXOvZaV1zMsL6" target="_blank" class="btn-project primary">Télécharger .exe</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assistant IA -->
+      <div class="project-card mini-card accent-pink fade-up fade-up-delay-4" data-ball-color="255,102,136">
+        <canvas class="mini-ball-canvas"></canvas>
+        <div class="mini-card-content">
+          <div class="project-meta">
+            <span class="project-type">App IA</span>
+            <span class="project-dot"></span>
+            <span class="project-type">2024</span>
+          </div>
+          <h3 class="project-title">💬 Assistant Vocal IA</h3>
+          <p class="project-desc">Voix naturelle via ElevenLabs. Interface macOS, commandes intelligentes.</p>
+          <div class="project-tags">
+            <span class="project-tag">Python</span>
+            <span class="project-tag">ElevenLabs</span>
+          </div>
+          <div class="project-links">
+            <a href="https://drive.google.com/uc?export=download&id=1waQXPc6ktA4EuZlzhj-YqToVrM1ZjkWt" target="_blank" class="btn-project primary">Télécharger .app</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== CONTACT ========== -->
+<section id="contact">
+  <div class="contact-inner">
+    <div>
+      <div class="section-label fade-up">Contact</div>
+      <h2 class="section-title fade-up fade-up-delay-1">Travaillons ensemble</h2>
+      <p class="section-desc fade-up fade-up-delay-2" style="margin-bottom:2.5rem;">
+        Tu as un projet, une idée, ou tu veux juste discuter de code ? Je suis disponible pour des missions freelance et des collaborations.
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        <div class="contact-card fade-up fade-up-delay-2">
+          <div class="contact-icon">📧</div>
+          <div class="contact-label">Email</div>
+          <a href="mailto:mascret.clement@gmail.com" class="contact-value">mascret.clement@gmail.com</a>
+        </div>
+        <div class="contact-card fade-up fade-up-delay-3">
+          <div class="contact-icon">🐙</div>
+          <div class="contact-label">GitHub</div>
+          <a href="https://github.com/tercsam" target="_blank" class="contact-value">github.com/tercsam</a>
+        </div>
+        <div class="contact-card fade-up fade-up-delay-4">
+          <div class="contact-icon">💼</div>
+          <div class="contact-label">Disponibilité</div>
+          <span class="contact-value" style="color: var(--green);">● Disponible pour missions</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fade-up fade-up-delay-2">
+      <div class="contact-form">
+        <div class="form-group">
+          <label class="form-label">Nom</label>
+          <input class="form-input" type="text" placeholder="Ton prénom">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" placeholder="ton@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea class="form-textarea" placeholder="Ton projet, ton idée…"></textarea>
+        </div>
+        <button class="btn-submit" onclick="sendContact()">
+          Envoyer le message ↗
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <span class="footer-copy">© 2025 Clément Mascret — Développé avec ❤️ et Three.js</span>
+  <ul class="footer-links">
+    <li><a href="#hero">Haut de page ↑</a></li>
+    <li><a href="mailto:mascret.clement@gmail.com">Email</a></li>
+    <li><a href="https://github.com/tercsam" target="_blank">GitHub</a></li>
+  </ul>
+</footer>
+
+<!-- ========== SEARCH MODAL ========== -->
+<div id="search-modal">
+  <div class="search-box">
+    <div class="search-header">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" placeholder="Rechercher sur le web…" autocomplete="off">
+      <button class="search-close" id="closeSearch">✕</button>
+    </div>
+    <div class="search-results" id="searchResults">
+      <div class="search-status">Tape ta recherche et appuie sur Entrée</div>
+    </div>
+    <div class="search-footer">
+      <div class="search-hint"><kbd>Enter</kbd> pour rechercher</div>
+      <div class="search-hint"><kbd>Esc</kbd> pour fermer</div>
+    </div>
   </div>
 </div>
 
-    </section>
+<!-- ===================== SCRIPTS ===================== -->
+<script>
+// ============ CURSOR ============
+const cursor = document.getElementById('cursor');
+const trail = document.getElementById('cursor-trail');
+let mx = 0, my = 0, tx = 0, ty = 0;
 
-    <!-- Section Contact -->
-    <section id="contact" class="section fade">
-      <h2>Contact</h2>
-      <p>Tu veux collaborer ou discuter de projets ? Envoie-moi un message 📩</p>
-      <button id="contactBtn" class="btn">Envoyer un message</button>
-    </section>
-  </main>
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
 
-  <footer>
-    <p>© 2025 Clément Mascret – Développé avec ❤️</p>
-  </footer>
+document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
+document.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
 
-  <!-- Script JS -->
-  <script src="script.js"></script>
+// trail lerp
+(function animTrail() {
+  tx += (mx - tx) * 0.12;
+  ty += (my - ty) * 0.12;
+  trail.style.left = tx + 'px';
+  trail.style.top = ty + 'px';
+  requestAnimationFrame(animTrail);
+})();
+
+// hover class on interactive els
+document.querySelectorAll('a, button, .project-card, .contact-card, .nav-dot, .stat-card').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+
+// ============ TOPNAV SCROLL ============
+const topnav = document.getElementById('topnav');
+window.addEventListener('scroll', () => {
+  topnav.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ============ THEME ============
+const themeBtn = document.getElementById('themeToggle');
+if (localStorage.getItem('theme') === 'light') { document.body.classList.add('light'); themeBtn.textContent = '☀️'; }
+themeBtn.addEventListener('click', () => {
+  document.body.classList.toggle('light');
+  const isLight = document.body.classList.contains('light');
+  themeBtn.textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+});
+
+// ============ SCROLL ANIMATIONS ============
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold: 0.15});
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Scroll indicator
+setTimeout(() => {
+  document.getElementById('scrollIndicator').classList.add('visible');
+}, 2000);
+
+// ============ CONTACT FORM ============
+function sendContact() {
+  const name = document.querySelector('.form-input[type="text"]').value;
+  const email = document.querySelector('.form-input[type="email"]').value;
+  const msg = document.querySelector('.form-textarea').value;
+  if (!msg.trim()) { alert('Écris un message !'); return; }
+  window.location.href = `mailto:mascret.clement@gmail.com?subject=Contact Portfolio - ${name}&body=${encodeURIComponent(msg + '\n\nDe: ' + name + '\nEmail: ' + email)}`;
+}
+
+// ============ SEARCH ============
+const EXA_KEY = "21888cd4-da96-4a6a-aa24-1707e30a8ad3";
+const modal = document.getElementById('search-modal');
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+document.getElementById('openSearch').addEventListener('click', () => {
+  modal.classList.add('open');
+  setTimeout(() => searchInput.focus(), 100);
+});
+document.getElementById('closeSearch').addEventListener('click', () => modal.classList.remove('open'));
+modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') modal.classList.remove('open');
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); modal.classList.add('open'); setTimeout(() => searchInput.focus(), 100); }
+});
+
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && searchInput.value.trim()) runSearch(searchInput.value.trim());
+});
+
+async function runSearch(query) {
+  searchResults.innerHTML = '<div class="search-status">⏳ Recherche en cours…</div>';
+  try {
+    const res = await fetch('https://api.exa.ai/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': EXA_KEY },
+      body: JSON.stringify({ query, type: 'auto', numResults: 6, text: true })
+    });
+    const data = await res.json();
+    if (!data.results || !data.results.length) {
+      searchResults.innerHTML = '<div class="search-status">Aucun résultat trouvé ❌</div>';
+      return;
+    }
+    searchResults.innerHTML = data.results.map(r => `
+      <div class="search-result-card">
+        <div class="search-result-title">${r.title || 'Sans titre'}</div>
+        <div class="search-result-url">${r.url}</div>
+        ${r.text ? `<div class="search-result-snippet">${r.text.slice(0, 200)}…</div>` : ''}
+        <a href="${r.url}" target="_blank" class="search-result-link">Ouvrir ↗</a>
+      </div>
+    `).join('');
+  } catch (err) {
+    searchResults.innerHTML = '<div class="search-status">Erreur de recherche ❌</div>';
+  }
+}
+
+// ============ MINI BALL CANVAS ============
+(function initMiniBalls() {
+  document.querySelectorAll('.project-card.mini-card').forEach(card => {
+    const canvas = card.querySelector('.mini-ball-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const colorStr = card.dataset.ballColor || '255,211,105';
+    const [r,g,b] = colorStr.split(',').map(Number);
+
+    const W = 120, H = 120;
+    canvas.width = W; canvas.height = H;
+
+    // Create multiple small orbiting balls
+    const balls = Array.from({length: 5}, (_, i) => ({
+      angle: (i / 5) * Math.PI * 2,
+      orbitR: 20 + i * 8,
+      size: 3 + i * 1.5,
+      speed: 0.008 + i * 0.004,
+      opacity: 0.4 + i * 0.1,
+    }));
+
+    // Big central ball
+    let bigX = W/2, bigY = H/2;
+    let bigVx = 0, bigVy = 0;
+    let mouseX = W/2, mouseY = H/2;
+    let isHovered = false;
+
+    card.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      mouseX = e.clientX - cardRect.left - (cardRect.width - W);
+      mouseY = e.clientY - cardRect.top;
+      isHovered = true;
+    });
+    card.addEventListener('mouseleave', () => { isHovered = false; });
+
+    let t = Math.random() * 100;
+    function drawBall() {
+      t += 0.016;
+      ctx.clearRect(0, 0, W, H);
+
+      // Big central ball with magnetic effect
+      if (isHovered) {
+        const dx = mouseX - bigX;
+        const dy = mouseY - bigY;
+        bigVx += dx * 0.04;
+        bigVy += dy * 0.04;
+      } else {
+        bigVx += (W/2 - bigX) * 0.03;
+        bigVy += (H/2 - bigY) * 0.03;
+      }
+      bigVx *= 0.82;
+      bigVy *= 0.82;
+      bigX += bigVx;
+      bigY += bigVy;
+
+      // Glow
+      const grd = ctx.createRadialGradient(bigX, bigY, 0, bigX, bigY, 32);
+      grd.addColorStop(0, `rgba(${r},${g},${b},0.35)`);
+      grd.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.beginPath();
+      ctx.arc(bigX, bigY, 32, 0, Math.PI*2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+
+      // Big ball
+      const grad2 = ctx.createRadialGradient(bigX-4, bigY-4, 2, bigX, bigY, 16);
+      grad2.addColorStop(0, `rgba(255,255,255,0.9)`);
+      grad2.addColorStop(0.3, `rgba(${r},${g},${b},0.9)`);
+      grad2.addColorStop(1, `rgba(${Math.floor(r*0.4)},${Math.floor(g*0.4)},${Math.floor(b*0.4)},0.6)`);
+      ctx.beginPath();
+      ctx.arc(bigX, bigY, 16, 0, Math.PI*2);
+      ctx.fillStyle = grad2;
+      ctx.fill();
+
+      // Orbiting small balls
+      balls.forEach((ball, i) => {
+        ball.angle += ball.speed;
+        const cx = bigX + Math.cos(ball.angle) * ball.orbitR;
+        const cy = bigY + Math.sin(ball.angle) * ball.orbitR;
+
+        // trail
+        for (let j = 4; j >= 0; j--) {
+          const ta = ball.angle - j * 0.15;
+          const tx2 = bigX + Math.cos(ta) * ball.orbitR;
+          const ty2 = bigY + Math.sin(ta) * ball.orbitR;
+          ctx.beginPath();
+          ctx.arc(tx2, ty2, ball.size * (1 - j*0.15), 0, Math.PI*2);
+          ctx.fillStyle = `rgba(${r},${g},${b},${(ball.opacity * (0.06 - j*0.01)).toFixed(3)})`;
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, ball.size, 0, Math.PI*2);
+        const sg = ctx.createRadialGradient(cx-1, cy-1, 0, cx, cy, ball.size);
+        sg.addColorStop(0, `rgba(255,255,255,0.95)`);
+        sg.addColorStop(0.5, `rgba(${r},${g},${b},${ball.opacity})`);
+        sg.addColorStop(1, `rgba(${Math.floor(r*0.3)},${Math.floor(g*0.3)},${Math.floor(b*0.3)},0.3)`);
+        ctx.fillStyle = sg;
+        ctx.fill();
+      });
+
+      requestAnimationFrame(drawBall);
+    }
+    drawBall();
+  });
+})();
+
+// ============ HERO 3D ENGINE ============
+(function initHero() {
+  const canvas = document.getElementById('hero-canvas');
+  const W = () => canvas.offsetWidth || window.innerWidth;
+  const H = () => canvas.offsetHeight || window.innerHeight;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(W(), H());
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, W() / H(), 0.1, 500);
+  camera.position.set(0, 0, 14);
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+  const lGold = new THREE.PointLight(0xffd369, 3, 40);
+  lGold.position.set(2, 6, 8);
+  scene.add(lGold);
+  const lBlue = new THREE.PointLight(0x4488ff, 2, 30);
+  lBlue.position.set(-10, -4, 2);
+  scene.add(lBlue);
+  const lPink = new THREE.PointLight(0xff6688, 1.5, 25);
+  lPink.position.set(8, 3, -2);
+  scene.add(lPink);
+
+  // ---- Starfield ----
+  const sGeo = new THREE.BufferGeometry();
+  const N = 3000;
+  const sPos = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    sPos[i*3]   = (Math.random()-0.5)*300;
+    sPos[i*3+1] = (Math.random()-0.5)*300;
+    sPos[i*3+2] = (Math.random()-0.5)*300 - 60;
+  }
+  sGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+  scene.add(new THREE.Points(sGeo, new THREE.PointsMaterial({color:0xffffff, size:0.12, transparent:true, opacity:0.6, sizeAttenuation:true})));
+
+  // ---- Central Icosahedron ----
+  const coreGeo = new THREE.IcosahedronGeometry(1.8, 5);
+  const coreMat = new THREE.MeshStandardMaterial({
+    color: 0x0d1020, emissive: 0x1a2866, emissiveIntensity: 0.5,
+    metalness: 0.95, roughness: 0.05
+  });
+  const core = new THREE.Mesh(coreGeo, coreMat);
+  scene.add(core);
+
+  // wireframe shell
+  const wireGeo = new THREE.IcosahedronGeometry(1.82, 2);
+  const wireMat = new THREE.MeshBasicMaterial({color:0x3355cc, wireframe:true, transparent:true, opacity:0.12});
+  const wire = new THREE.Mesh(wireGeo, wireMat);
+  scene.add(wire);
+
+  // ---- Orbital Rings ----
+  [[2.2,0.007,0xffd369,0.5,0.1,0],
+   [3.0,0.006,0x4488ff,0.3,0.45,0.3],
+   [4.0,0.005,0xff6688,0.18,0.3,0.6]].forEach(([r,t,c,o,rx,rz]) => {
+    const rg = new THREE.TorusGeometry(r, t, 8, 200);
+    const rm = new THREE.MeshBasicMaterial({color:c, transparent:true, opacity:o});
+    const mesh = new THREE.Mesh(rg, rm);
+    mesh.rotation.x = rx * Math.PI;
+    mesh.rotation.z = rz * Math.PI;
+    scene.add(mesh);
+  });
+
+  // ---- Floating Nodes ----
+  const nodeData = [
+    {pos:[-5, 2, -1], color:0xffd369, emissive:0xaa7700, size:1.0, label:'Projets'},
+    {pos:[5, 1.5, -2], color:0x4488ff, emissive:0x1144aa, size:0.85, label:'À propos'},
+    {pos:[-1, -4, 0.5], color:0xff6688, emissive:0xaa1133, size:0.8, label:'Contact'},
+    {pos:[3, -2.5, -4], color:0x44ffaa, emissive:0x116633, size:0.7, label:'Lab'},
+  ];
+
+  const nodeMeshes = [];
+  const nodeHalos = [];
+
+  nodeData.forEach((n, i) => {
+    const geo = new THREE.IcosahedronGeometry(n.size, 3);
+    const mat = new THREE.MeshStandardMaterial({
+      color: n.color, emissive: n.emissive, emissiveIntensity: 0.6,
+      metalness: 0.5, roughness: 0.3
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(...n.pos);
+    mesh.userData = {basePos: [...n.pos], index: i, nodeData: n};
+    scene.add(mesh);
+    nodeMeshes.push(mesh);
+
+    // connection line
+    const pts = [new THREE.Vector3(0,0,0), new THREE.Vector3(...n.pos)];
+    const lg = new THREE.BufferGeometry().setFromPoints(pts);
+    scene.add(new THREE.Line(lg, new THREE.LineBasicMaterial({color:n.color, transparent:true, opacity:0.08})));
+
+    // halo
+    const hg = new THREE.SphereGeometry(n.size*2, 12, 12);
+    const hm = new THREE.MeshBasicMaterial({color:n.color, transparent:true, opacity:0.05, side:THREE.BackSide});
+    const halo = new THREE.Mesh(hg, hm);
+    halo.position.set(...n.pos);
+    scene.add(halo);
+    nodeHalos.push(halo);
+  });
+
+  // ---- Floating Particles ----
+  const floaters = [];
+  for (let i = 0; i < 80; i++) {
+    const fg = new THREE.SphereGeometry(0.025 + Math.random()*0.045, 4, 4);
+    const color = [0xffd369, 0x4488ff, 0xff6688, 0x44ffaa][Math.floor(Math.random()*4)];
+    const fm = new THREE.MeshBasicMaterial({color, transparent:true, opacity:0.2+Math.random()*0.5});
+    const f = new THREE.Mesh(fg, fm);
+    const r = 3.5 + Math.random()*9;
+    const theta = Math.random()*Math.PI*2;
+    const phi = (Math.random()-0.5)*Math.PI*0.7;
+    f.position.set(r*Math.cos(theta)*Math.cos(phi), r*Math.sin(phi), r*Math.sin(theta)*Math.cos(phi));
+    f.userData = {r, theta, phi, speed:0.002+Math.random()*0.008, amp:0.2+Math.random()*0.6, phase:Math.random()*Math.PI*2};
+    scene.add(f);
+    floaters.push(f);
+  }
+
+  // ---- Mouse & Raycaster ----
+  const raycast = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  let mouseNX = 0, mouseNY = 0;
+  let hoveredMesh = null;
+
+  window.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const cx = e.clientX - rect.left;
+    const cy = e.clientY - rect.top;
+    mouse.x = (cx / W()) * 2 - 1;
+    mouse.y = -(cy / H()) * 2 + 1;
+    mouseNX = (cx / W() - 0.5) * 2;
+    mouseNY = (cy / H() - 0.5) * 2;
+  });
+
+  // ---- Nav dots / hero entrance anim ----
+  document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+    dot.addEventListener('click', () => {
+      document.querySelectorAll('.nav-dot').forEach((d,j) => d.classList.toggle('active', j===i));
+    });
+  });
+
+  // entrance animation
+  setTimeout(() => {
+    const badge = document.querySelector('.hero-badge');
+    const name = document.querySelector('.hero-name');
+    const tagline = document.querySelector('.hero-tagline');
+    const actions = document.querySelector('.hero-actions');
+    [badge, name, tagline, actions].forEach((el, i) => {
+      setTimeout(() => {
+        if (!el) return;
+        el.style.transition = `opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1)`;
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      }, i * 180);
+    });
+  }, 400);
+
+  // ---- Animate ----
+  const clock = new THREE.Clock();
+  let camX = 0, camY = 0;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+
+    // Core
+    core.rotation.y = t * 0.1;
+    core.rotation.x = t * 0.05;
+    wire.rotation.y = -t * 0.07;
+    wire.rotation.x = t * 0.04;
+
+    // Nodes float
+    nodeMeshes.forEach((m, i) => {
+      const bp = m.userData.basePos;
+      m.position.y = bp[1] + Math.sin(t * 0.7 + i * 1.3) * 0.18;
+      m.rotation.y = t * 0.25 + i;
+      nodeHalos[i].position.copy(m.position);
+    });
+
+    // Particles
+    floaters.forEach(f => {
+      f.userData.theta += f.userData.speed;
+      const {r, theta, phi, amp, phase} = f.userData;
+      f.position.x = r * Math.cos(theta) * Math.cos(phi);
+      f.position.z = r * Math.sin(theta) * Math.cos(phi);
+      f.position.y = r * Math.sin(phi) + Math.sin(t + phase) * amp;
+    });
+
+    // Raycaster
+    raycast.setFromCamera(mouse, camera);
+    const hits = raycast.intersectObjects(nodeMeshes);
+    hoveredMesh = hits.length ? hits[0].object : null;
+
+    nodeMeshes.forEach(m => {
+      const isHov = m === hoveredMesh;
+      const ts = new THREE.Vector3(isHov?1.3:1, isHov?1.3:1, isHov?1.3:1);
+      m.scale.lerp(ts, 0.1);
+      m.material.emissiveIntensity += ((isHov ? 1.0 : 0.6) - m.material.emissiveIntensity) * 0.1;
+    });
+
+    // Camera parallax
+    camX += (mouseNX * 1.2 - camX) * 0.04;
+    camY += (-mouseNY * 0.7 - camY) * 0.04;
+    camera.position.x = camX;
+    camera.position.y = camY;
+    camera.lookAt(0, 0, 0);
+
+    // Lights pulse
+    lGold.intensity = 3 + Math.sin(t * 1.3) * 0.6;
+    lBlue.intensity = 2 + Math.sin(t * 1.9 + 1) * 0.4;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Resize
+  window.addEventListener('resize', () => {
+    camera.aspect = W() / H();
+    camera.updateProjectionMatrix();
+    renderer.setSize(W(), H());
+  });
+})();
+</script>
+
 </body>
 </html>
